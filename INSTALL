@@ -5,7 +5,7 @@ What you need
 
 Make sure you get the following stuff:
 
-  * Qt library (6.5 or newer, Widgets, Network and Concurrent modules)
+  * Qt library (6.4 or newer, Widgets, Network and Concurrent modules)
 
 It is important that you compile AND INSTALL the above packages!
 
@@ -61,7 +61,10 @@ make install (as root)
 On macOS, "make" produces a regular "Wii Backup Fusion.app" in bin/. It needs no
 launcher script; run "macdeployqt" on it to bundle the Qt frameworks:
 
-macdeployqt "bin/Wii Backup Fusion.app"
+macdeployqt "bin/Wii Backup Fusion.app" -dmg
+
+Use the official Qt from qt.io (or aqtinstall) for this: the Homebrew Qt is split
+into many packages and macdeployqt cannot resolve all of its plugins.
 
 The app finds wit/wwt in Contents/Resources/wit, /opt/homebrew/bin, /usr/local/bin
 or the path set in the settings. Downloaded titles are stored in

@@ -3,7 +3,7 @@ Section: utils
 Priority: extra
 Maintainer: Kai Heitkamp <dynup@ymail.com>
 Homepage: http://sf.net/p/wiibafu
-Build-Depends: debhelper (>= 7.0.50~), qmake6, qt6-base-dev (>= 6.5), libqt6concurrent6 (>= 6.5)
+Build-Depends: debhelper (>= 7.0.50~), qmake6, qt6-base-dev (>= 6.4), libqt6concurrent6 (>= 6.4)
 Standards-Version: 3.9.1
 #Vcs-Git: git://git.debian.org/collab-maint/vibafu.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/vibafu.git;a=summary

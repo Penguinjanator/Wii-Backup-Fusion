@@ -1,0 +1,86 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: macOS (universal)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.*
+          cache: true
+
+      - name: Build
+        run: |
+          qmake CONFIG+=release QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64"
+          make -j"$(sysctl -n hw.ncpu)"
+
+      - name: Bundle Qt and create disk image
+        run: |
+          macdeployqt "bin/Wii Backup Fusion.app" -dmg -codesign=-
+          mv "bin/Wii Backup Fusion.dmg" Wii-Backup-Fusion-macOS.dmg
+
+      - name: Check the bundle
+        run: |
+          lipo -archs "bin/Wii Backup Fusion.app/Contents/MacOS/Wii Backup Fusion"
+          codesign --verify --deep --strict "bin/Wii Backup Fusion.app"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Wii-Backup-Fusion-macOS
+          path: Wii-Backup-Fusion-macOS.dmg
+
+  linux:
+    name: Linux
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-l10n-tools libgl1-mesa-dev
+
+      - name: Build
+        run: |
+          qmake6 CONFIG+=release
+          make -j"$(nproc)"
+
+      - name: Package
+        run: tar -czf Wii-Backup-Fusion-Linux-x86_64.tar.gz -C bin WiiBaFu
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Wii-Backup-Fusion-Linux
+          path: Wii-Backup-Fusion-Linux-x86_64.tar.gz
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [macos, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Wii-Backup-Fusion-macOS.dmg
+            Wii-Backup-Fusion-Linux-x86_64.tar.gz
