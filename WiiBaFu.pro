@@ -26,16 +26,16 @@ TRANSLATIONS    += resources/locale/english.ts resources/locale/german.ts resour
 
 TEMPLATE         = app
 TARGET           = WiiBaFu
-CONFIG          += qt warn_on thread
-QT              += widgets core network
+CONFIG          += qt warn_on thread c++17
+QT              += widgets core network concurrent
 DESTDIR          = bin
 INCLUDEPATH      = src
 OBJECTS_DIR      = build/o
 UI_DIR           = build/ui
 MOC_DIR          = build/moc
 RCC_DIR          = build/rcc
-CODECFORTR       = UTF-8
-CODECFORSRC      = UTF-8
+
+lessThan(QT_MAJOR_VERSION, 6): error("Wii Backup Fusion requires Qt 6 or newer.")
 
 linux-g++ {
   target.path    = /usr/bin
@@ -53,10 +53,9 @@ win32 {
 }
 
 macx {
-  ICON              += resources/images/appicon.icns
-  QMAKE_INFO_PLIST  += mac/Info.plist
+  ICON               = resources/images/appicon.icns
+  QMAKE_INFO_PLIST   = mac/Info.plist
   TARGET             = "Wii Backup Fusion"
-  CONFIG            += x86 ppc
   target.path        = /Applications
   INSTALLS          += target
 }

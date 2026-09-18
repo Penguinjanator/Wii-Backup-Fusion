@@ -24,7 +24,7 @@
 WBFSDialog::WBFSDialog(QWidget *parent) : QDialog(parent), ui(new Ui::WBFSDialog) {
     ui->setupUi(this);
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         setMacOSXStyle();
     #endif
 }
@@ -72,11 +72,9 @@ bool WBFSDialog::test() {
 void WBFSDialog::setMacOSXStyle() {
     if (WIIBAFU_SETTINGS.value("Main/MacOSXStyle", QVariant("Aqua")).toString().contains("BrushedMetal")) {
         ui->frame->setFrameShape(QFrame::NoFrame);
-        this->setAttribute(Qt::WA_MacBrushedMetal, true);
     }
     else {
         ui->frame->setFrameShape(QFrame::StyledPanel);
-        this->setAttribute(Qt::WA_MacBrushedMetal, false);
     }
 }
 

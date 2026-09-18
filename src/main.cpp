@@ -30,7 +30,6 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationVersion(AppVersion);
 
     QTranslator qtTranslator, appTranslator;
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf8"));
 
     QString appLang, qtLang;
     int langIndex = WIIBAFU_SETTINGS.value("Main/ApplicationLanguage", QVariant(0)).toInt();

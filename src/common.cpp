@@ -165,11 +165,7 @@ void Common::updateTitles() {
             titlesPath = WIIBAFU_SETTINGS.value("WIT/PathToTitles").toString();
         }
         else {
-            #ifdef Q_OS_MACX
-                titlesPath = QDir::currentPath().append("/Wii Backup Fusion.app/Contents/wit");
-            #else
-                titlesPath = QDir::currentPath().append("/wit");
-            #endif
+            titlesPath = WiTools::writableTitlesPath();
         }
     }
 
@@ -181,7 +177,7 @@ void Common::updateTitles() {
     QString fileName = titlesPath.append("/titles");
 
     for (int i = 0; i < 16; i++) {
-        #ifdef Q_OS_MACX
+        #ifdef Q_OS_MACOS
             emit showStatusBarMessage(tr("Downloading titles%1... (%2%)").arg(titlesExtensions.at(i), QString::number(i * 100 / 16)));
         #else
             emit showStatusBarMessage(tr("Downloading titles%1...").arg(titlesExtensions.at(i)));

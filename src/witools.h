@@ -106,6 +106,8 @@ public:
     QString witVersion();
     QString wwtVersion();
     QString witTitlesPath();
+    static QStringList bundledWitPaths();
+    static QString writableTitlesPath();
 
 private:
     QString wit, wwt;

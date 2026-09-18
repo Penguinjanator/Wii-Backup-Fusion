@@ -5,7 +5,7 @@ What you need
 
 Make sure you get the following stuff:
 
-  * Qt library (5.1.x highly recommended)
+  * Qt library (6.5 or newer, Widgets, Network and Concurrent modules)
 
 It is important that you compile AND INSTALL the above packages!
 
@@ -54,9 +54,18 @@ Compiling Wii Backup Fusion
 ===========================
 
 cd WiiBaFu
-qmake
+qmake6
 make
 make install (as root)
+
+On macOS, "make" produces a regular "Wii Backup Fusion.app" in bin/. It needs no
+launcher script; run "macdeployqt" on it to bundle the Qt frameworks:
+
+macdeployqt "bin/Wii Backup Fusion.app"
+
+The app finds wit/wwt in Contents/Resources/wit, /opt/homebrew/bin, /usr/local/bin
+or the path set in the settings. Downloaded titles are stored in
+~/Library/Application Support/Wii Backup Fusion/wit.
 
 For Mac OS X you need the Xcode IDE from the Apple Developer Connection site: http://developer.apple.com
 The Xcode package from ADC also contains the SDKs, headers, tools and so on, all what you need!

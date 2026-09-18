@@ -27,7 +27,7 @@ CoverViewDialog::CoverViewDialog(QWidget *parent) : QDialog(parent), ui(new Ui::
 
     connect(this, SIGNAL(finished(int)), this, SLOT(finished(int)));
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         setMacOSXStyle();
     #endif
 }
@@ -42,7 +42,7 @@ void CoverViewDialog::on_pushButton_Save_clicked() {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save game cover"), QDir::homePath().append("/%1_CoverFullHQ.png").arg(gameID), tr("Image file *.png"));
 
     if (!fileName.isEmpty()) {
-        ui->label_GameCover->pixmap()->save(fileName);
+        ui->label_GameCover->pixmap().save(fileName);
     }
 }
 
@@ -55,14 +55,12 @@ void CoverViewDialog::setMacOSXStyle() {
         ui->frame_Cover->setFrameStyle(QFrame::NoFrame);
         ui->frame_Buttons->setFrameStyle(QFrame::NoFrame);
 
-        this->setAttribute(Qt::WA_MacBrushedMetal, true);
     }
     else {
         ui->frame_Cover->setFrameStyle(QFrame::StyledPanel);
         ui->frame_Buttons->setFrameStyle(QFrame::Box);
         ui->frame_Buttons->setFrameShadow(QFrame::Raised);
 
-        this->setAttribute(Qt::WA_MacBrushedMetal, false);
     }
 }
 

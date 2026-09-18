@@ -27,7 +27,7 @@ Settings::Settings(QWidget *parent) : QDialog(parent), ui(new Ui::Settings) {
     setupGeometry();
     load();
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         setMacOSXStyle();
         ui->main_label_MacOSXStyle->setEnabled(true);
         ui->main_radioButton_MacOSXStyle_Aqua->setEnabled(true);
@@ -577,12 +577,7 @@ void Settings::saveGeometry() {
 }
 
 void Settings::setMacOSXStyle() {
-    if (WIIBAFU_SETTINGS.value("Main/MacOSXStyle", QVariant("Aqua")).toString().contains("BrushedMetal")) {
-        this->setAttribute(Qt::WA_MacBrushedMetal, true);
-    }
-    else {
-        this->setAttribute(Qt::WA_MacBrushedMetal, false);
-    }
+    // Brushed metal windows no longer exist in Qt 6 / current macOS, so there is nothing to toggle here.
 }
 
 Settings::~Settings() {

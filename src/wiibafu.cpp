@@ -47,7 +47,7 @@ WiiBaFu::WiiBaFu(QWidget *parent) : QMainWindow(parent), ui(new Ui::WiiBaFu) {
     setGameListAttributes(ui->dvdTab_tableView);
     setGameListAttributes(ui->wbfsTab_tableView);
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         setMacOSXStyle();
     #endif
 
@@ -293,7 +293,7 @@ void WiiBaFu::setupMainProgressBar() {
     progressBar_Main->setMaximumHeight(16);
     ui->statusBar->addPermanentWidget(progressBar_Main);
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         ui->wbfsTab_label_Info->setVisible(true);
     #else
         ui->wbfsTab_label_Info->setVisible(false);
@@ -323,7 +323,6 @@ void WiiBaFu::setMacOSXStyle() {
         ui->infoTab_frame_Buttons->setFrameShape(QFrame::NoFrame);
         ui->logTab_frame_Buttons->setFrameShape(QFrame::NoFrame);
 
-        this->setAttribute(Qt::WA_MacBrushedMetal, true);
     }
     else {
         ui->filesTab_frame_Buttons->setFrameShape(QFrame::Box);
@@ -335,7 +334,6 @@ void WiiBaFu::setMacOSXStyle() {
         ui->infoTab_frame_Buttons->setFrameShape(QFrame::Box);
         ui->logTab_frame_Buttons->setFrameShape(QFrame::Box);
 
-        this->setAttribute(Qt::WA_MacBrushedMetal, false);
     }
 }
 
@@ -429,7 +427,7 @@ void::WiiBaFu::setView(const int index) {
 void WiiBaFu::options_Settings_triggered() {
     int language = WIIBAFU_SETTINGS.value("Main/GameLanguage", QVariant(0)).toInt();
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         QString macOSXStyle = WIIBAFU_SETTINGS.value("Main/MacOSXStyle", QVariant("Aqua")).toString();
     #endif
 
@@ -463,7 +461,7 @@ void WiiBaFu::options_Settings_triggered() {
             ui->wbfsTab_tableView->update();
         }
 
-        #ifdef Q_OS_MACX
+        #ifdef Q_OS_MACOS
             if (macOSXStyle != WIIBAFU_SETTINGS.value("Main/MacOSXStyle", QVariant("Aqua")).toString()) {
                 setMacOSXStyle();
                 settings->setMacOSXStyle();
@@ -480,7 +478,7 @@ void WiiBaFu::tools_CheckWBFS_triggered() {
 }
 
 void WiiBaFu::tools_DumpWBFS_triggered() {
-    QtConcurrent::run(wiTools, &WiTools::dumpWBFS, wbfsPath());
+    QtConcurrent::run(&WiTools::dumpWBFS, wiTools, wbfsPath());
 }
 
 void WiiBaFu::tools_CreateWBFS_triggered() {
@@ -497,7 +495,7 @@ void WiiBaFu::tools_CreateWBFS_triggered() {
         parameters.Inode = wbfsDialog->inode();
         parameters.Test = wbfsDialog->test();
 
-        QtConcurrent::run(wiTools, &WiTools::createWBFS, parameters);
+        QtConcurrent::run(&WiTools::createWBFS, wiTools, parameters);
     }
 }
 
@@ -529,7 +527,7 @@ void WiiBaFu::tools_VerifyGame_triggered() {
             action_VerifyGame->setIcon(QIcon(":/images/cancel.png"));
             action_VerifyGame->setText(tr("&Cancel verifying"));
 
-            QtConcurrent::run(wiTools, &WiTools::verifyGame, ui->stackedWidget->currentIndex(), wbfsPath(), game);
+            QtConcurrent::run(&WiTools::verifyGame, wiTools, ui->stackedWidget->currentIndex(), wbfsPath(), game);
             ui->stackedWidget->setCurrentIndex(4);
         }
         else {
@@ -577,7 +575,7 @@ void WiiBaFu::tools_Compare_triggered() {
 }
 
 void WiiBaFu::tools_UpdateTitles_triggered() {
-    QtConcurrent::run(common, &Common::updateTitles);
+    QtConcurrent::run(&Common::updateTitles, common);
 }
 
 void WiiBaFu::on_filesTab_tableView_doubleClicked(QModelIndex) {
@@ -600,7 +598,7 @@ void WiiBaFu::on_filesTab_pushButton_Load_clicked() {
             WIIBAFU_SETTINGS.setValue("Main/LastFilesPath", directory);
             int depth = WIIBAFU_SETTINGS.value("WIT/RecurseDepth", QVariant(10)).toInt();
 
-            QtConcurrent::run(wiTools, &WiTools::requestFilesGameListModel, filesListModel, directory, depth);
+            QtConcurrent::run(&WiTools::requestFilesGameListModel, wiTools, filesListModel, directory, depth);
         }
     }
     else {
@@ -639,7 +637,7 @@ void WiiBaFu::on_dvdTab_pushButton_Load_clicked() {
     emit startBusy();
 
     QString dvdPath = WIIBAFU_SETTINGS.value("WIT/DVDDrivePath", QVariant("/cdrom")).toString();
-    QtConcurrent::run(wiTools, &WiTools::requestDVDGameListModel, dvdListModel, dvdPath);
+    QtConcurrent::run(&WiTools::requestDVDGameListModel, wiTools, dvdListModel, dvdPath);
 }
 
 void WiiBaFu::on_dvdTab_pushButton_TransferToWBFS_clicked() {
@@ -683,7 +681,7 @@ void WiiBaFu::on_dvdTab_pushButton_TransferToWBFS_clicked() {
 
             ui->dvdTab_pushButton_TransferToWBFS->setIcon(QIcon(":/images/cancel.png"));
             ui->dvdTab_pushButton_TransferToWBFS->setText(tr("&Cancel transfering"));
-            QtConcurrent::run(wiTools, &WiTools::transferDVDToWBFS, dvdListModel->index(15, 0).data().toString(), wbfsPath(), patchParameters);
+            QtConcurrent::run(&WiTools::transferDVDToWBFS, wiTools, dvdListModel->index(15, 0).data().toString(), wbfsPath(), patchParameters);
         }
     }
     else {
@@ -739,7 +737,7 @@ void WiiBaFu::on_dvdTab_pushButton_TransferToImage_clicked() {
 
                 ui->dvdTab_pushButton_TransferToImage->setIcon(QIcon(":/images/cancel.png"));
                 ui->dvdTab_pushButton_TransferToImage->setText(tr("&Cancel transfering"));
-                QtConcurrent::run(wiTools, &WiTools::transferDVDToImage, WIIBAFU_SETTINGS.value("WIT/DVDDrivePath", QVariant("/cdrom")).toString(), transferParameters);
+                QtConcurrent::run(&WiTools::transferDVDToImage, wiTools, WIIBAFU_SETTINGS.value("WIT/DVDDrivePath", QVariant("/cdrom")).toString(), transferParameters);
             }
         }
     }
@@ -785,7 +783,7 @@ void WiiBaFu::on_dvdTab_pushButton_Extract_clicked() {
 
                 ui->dvdTab_pushButton_Extract->setIcon(QIcon(":/images/cancel.png"));
                 ui->dvdTab_pushButton_Extract->setText(tr("&Cancel extracting"));
-                QtConcurrent::run(wiTools, &WiTools::extractDVD, WIIBAFU_SETTINGS.value("WIT/DVDDrivePath", QVariant("/cdrom")).toString(), buildPath(wiibafudialog->directory(), dvdListModel, ui->dvdTab_tableView, patchParameters.ID), patchParameters);
+                QtConcurrent::run(&WiTools::extractDVD, wiTools, WIIBAFU_SETTINGS.value("WIT/DVDDrivePath", QVariant("/cdrom")).toString(), buildPath(wiibafudialog->directory(), dvdListModel, ui->dvdTab_tableView, patchParameters.ID), patchParameters);
             }
         }
     }
@@ -797,7 +795,7 @@ void WiiBaFu::on_dvdTab_pushButton_Extract_clicked() {
 void WiiBaFu::on_wbfsTab_pushButton_Load_clicked() {
     emit startBusy();
 
-    //QtConcurrent::run(wiTools, &WiTools::requestWBFSGameListModel, wbfsListModel, wbfsPath());
+    //QtConcurrent::run(&WiTools::requestWBFSGameListModel, wiTools, wbfsListModel, wbfsPath());
     wiTools->requestWBFSGameListModel(wbfsListModel, wbfsPath());
 }
 
@@ -824,7 +822,7 @@ void WiiBaFu::on_wbfsTab_pushButton_Remove_clicked() {
     if (ui->wbfsTab_tableView->model() && !ui->wbfsTab_tableView->selectionModel()->selectedRows(0).isEmpty()) {
         int result = QMessageBox::warning(this, tr("Remove games"), tr("Are you sure that you want to delete the selected games?\n\nAttention:\nThe selected games are finally deleted from the WBFS file system!"), QMessageBox::Ok, QMessageBox::Cancel);
         if (result == QMessageBox::Ok) {
-            QtConcurrent::run(wiTools, &WiTools::removeGamesFromWBFS, ui->wbfsTab_tableView->selectionModel()->selectedRows(0), wbfsPath());
+            QtConcurrent::run(&WiTools::removeGamesFromWBFS, wiTools, ui->wbfsTab_tableView->selectionModel()->selectedRows(0), wbfsPath());
         }
     }
 }
@@ -836,7 +834,7 @@ void WiiBaFu::on_wbfsTab_pushButton_ShowInfo_clicked() {
 void WiiBaFu::on_wbfsTab_pushButton_Check_clicked() {
     int result = QMessageBox::question(this, tr("Check/Repair WBFS"), tr("Are you sure that you want to check/repair the wbfs?"), QMessageBox::Ok, QMessageBox::Cancel);
     if (result == QMessageBox::Ok) {
-        QtConcurrent::run(wiTools, &WiTools::checkWBFS, wbfsPath());
+        QtConcurrent::run(&WiTools::checkWBFS, wiTools, wbfsPath());
     }
 }
 
@@ -998,7 +996,7 @@ void WiiBaFu::filesTab_TransferToWBFS(const bool patch) {
 
             ui->filesTab_pushButton_TransferToWBFS->setIcon(QIcon(":/images/cancel.png"));
             ui->filesTab_pushButton_TransferToWBFS->setText(tr("&Cancel transfering"));
-            QtConcurrent::run(wiTools, &WiTools::transferFilesToWBFS, ui->filesTab_tableView->selectionModel()->selectedRows(10), wbfsPath(), parameters);
+            QtConcurrent::run(&WiTools::transferFilesToWBFS, wiTools, ui->filesTab_tableView->selectionModel()->selectedRows(10), wbfsPath(), parameters);
         }
     }
     else {
@@ -1076,7 +1074,7 @@ void WiiBaFu::filesTab_TransferToImage(const bool patch) {
                     ui->filesTab_pushButton_TransferToImage->setIcon(QIcon(":/images/cancel.png"));
                     ui->filesTab_pushButton_TransferToImage->setText(tr("&Cancel transfering"));
 
-                    QtConcurrent::run(wiTools, &WiTools::transferFilesToImage, transferParameters);
+                    QtConcurrent::run(&WiTools::transferFilesToImage, wiTools, transferParameters);
                 }
             }
         }
@@ -1129,7 +1127,7 @@ void WiiBaFu::filesTab_ExtractImage(const bool patch) {
                 else {
                     ui->filesTab_pushButton_ExtractImage->setIcon(QIcon(":/images/cancel.png"));
                     ui->filesTab_pushButton_ExtractImage->setText(tr("&Cancel extracting"));
-                    QtConcurrent::run(wiTools, &WiTools::extractImage, ui->filesTab_tableView->selectionModel()->selectedRows(10), buildPath(path.absolutePath(), filesListModel, ui->filesTab_tableView, patchParameters.ID), patchParameters);
+                    QtConcurrent::run(&WiTools::extractImage, wiTools, ui->filesTab_tableView->selectionModel()->selectedRows(10), buildPath(path.absolutePath(), filesListModel, ui->filesTab_tableView, patchParameters.ID), patchParameters);
                 }
             }
         }
@@ -1207,7 +1205,7 @@ void WiiBaFu::wbfsTab_Transfer(const bool patch) {
                 else {
                     ui->wbfsTab_pushButton_Transfer->setIcon(QIcon(":/images/cancel.png"));
                     ui->wbfsTab_pushButton_Transfer->setText(tr("&Cancel transfering"));
-                    QtConcurrent::run(wiTools, &WiTools::transferWBFSToImage, wbfsPath(), transferParameters);
+                    QtConcurrent::run(&WiTools::transferWBFSToImage, wiTools, wbfsPath(), transferParameters);
                 }
             }
         }
@@ -1260,7 +1258,7 @@ void WiiBaFu::wbfsTab_Extract(const bool patch) {
                 else {
                     ui->wbfsTab_pushButton_Extract->setIcon(QIcon(":/images/cancel.png"));
                     ui->wbfsTab_pushButton_Extract->setText(tr("&Cancel extracting"));
-                    QtConcurrent::run(wiTools, &WiTools::extractWBFS, ui->wbfsTab_tableView->selectionModel()->selectedRows(0), wbfsPath(), wiibafudialog->directory(), patchParameters);
+                    QtConcurrent::run(&WiTools::extractWBFS, wiTools, ui->wbfsTab_tableView->selectionModel()->selectedRows(0), wbfsPath(), wiibafudialog->directory(), patchParameters);
                 }
             }
         }
@@ -1452,7 +1450,7 @@ void WiiBaFu::filesGame_Patch() {
         parameters.EncodingMode = wiibafudialog->gameEncodingMode();
         parameters.CommonKey = wiibafudialog->gameCommonKey();
 
-        QtConcurrent::run(wiTools, &WiTools::patchGameImage, filesListModel->itemFromIndex(ui->filesTab_tableView->selectionModel()->selectedRows(10).first())->text(), parameters);
+        QtConcurrent::run(&WiTools::patchGameImage, wiTools, filesListModel->itemFromIndex(ui->filesTab_tableView->selectionModel()->selectedRows(10).first())->text(), parameters);
     }
 }
 
@@ -1460,7 +1458,7 @@ void WiiBaFu::filesGame_Patch_finished(WiTools::WitStatus status) {
     if (status == WiTools::Ok) {
         emit startBusy();
         ui->filesTab_pushButton_Load->setText(tr("&Cancel loading"));
-        QtConcurrent::run(wiTools, &WiTools::requestFilesGameListModel, filesListModel, WIIBAFU_SETTINGS.value("Main/LastFilesPath", QVariant(QDir::homePath())).toString(), WIIBAFU_SETTINGS.value("WIT/RecurseDepth", QVariant(10)).toInt());
+        QtConcurrent::run(&WiTools::requestFilesGameListModel, wiTools, filesListModel, WIIBAFU_SETTINGS.value("Main/LastFilesPath", QVariant(QDir::homePath())).toString(), WIIBAFU_SETTINGS.value("WIT/RecurseDepth", QVariant(10)).toInt());
     }
 }
 
@@ -1646,7 +1644,7 @@ void WiiBaFu::setWBFSProgressBar(const int min, const int max, const int value, 
 void WiiBaFu::setMainProgressBarVisible(const bool visible) {
     progressBar_Main->setVisible(visible);
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         if (!visible) {
             setWindowTitle("Wii Backup Fusion " + QCoreApplication::applicationVersion());
         }
@@ -1657,7 +1655,7 @@ void WiiBaFu::setMainProgressBar(const int value, const QString format) {
     progressBar_Main->setValue(value);
     progressBar_Main->setFormat(format);
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         setWindowTitle(QString(format).replace("%p%", QString::number(value).append("%")));
     #endif
 }

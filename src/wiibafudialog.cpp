@@ -27,7 +27,7 @@ WiiBaFuDialog::WiiBaFuDialog(QWidget *parent) : QDialog(parent), ui(new Ui::WiiB
     ui->setupUi(this);
     m_sourceFilePath = "";
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         setMacOSXStyle();
     #endif
 }
@@ -459,13 +459,11 @@ void WiiBaFuDialog::setMacOSXStyle() {
         ui->frame->setFrameShape(QFrame::NoFrame);
         ui->frame_compressionMethod->setFrameShape(QFrame::NoFrame);
 
-        this->setAttribute(Qt::WA_MacBrushedMetal, true);
     }
     else {
         ui->frame->setFrameShape(QFrame::Box);
         ui->frame_compressionMethod->setFrameShape(QFrame::Box);
 
-        this->setAttribute(Qt::WA_MacBrushedMetal, false);
     }
 }
 

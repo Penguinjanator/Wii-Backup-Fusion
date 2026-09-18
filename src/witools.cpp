@@ -65,7 +65,7 @@ void WiTools::requestFilesGameListModel(QStandardItemModel *model, const QString
 
 void WiTools::requestFilesGameListModel_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -251,7 +251,7 @@ void WiTools::requestDVDGameListModel(QStandardItemModel *model, const QString p
     QStandardItem *item = 0;
     QList<QStandardItem *> game;
     QTextStream textStream(&dvdRead);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -429,7 +429,7 @@ void WiTools::requestWBFSGameListModel(QStandardItemModel *model, const QString 
     int current = 0, max = 0;
     QStandardItem *item = 0;
     QTextStream textStream(&wbfsRead);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
     QString file, usedDiscs, totalDiscs, usedMB, freeMB, totalMB;
     QList<QStandardItem *> ids, names, titles, regions, sizes, usedblocks, itimes, mtimes, ctimes, atimes, filetypes, wbfsslots, sources;
 
@@ -578,7 +578,7 @@ void WiTools::requestWBFSGameListModel(QStandardItemModel *model, const QString 
     model->setHeaderData(11, Qt::Horizontal, tr("WBFS slot"));
     model->setHeaderData(12, Qt::Horizontal, tr("Source"));
 
-    #ifdef Q_OS_MACX
+    #ifdef Q_OS_MACOS
         emit setProgressBarWBFS(0, max, current, "%p%");
         emit setInfoTextWBFS(QString("%1 - %2 - %3 - %4 (%5%) - %6 - %7").arg(file, usedDiscs, totalDiscs, usedMB, QString::number(current * 100 / max, 'f', 0), freeMB, totalMB));
     #else
@@ -717,7 +717,7 @@ void WiTools::transferFilesToWBFS(const QModelIndexList indexList, const QString
 
 void WiTools::transferFilesToWBFS_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -945,7 +945,7 @@ void WiTools::transferFilesToImage(WiTools::TransferFilesToImageParameters trans
 
 void WiTools::transferFilesToImage_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -1130,7 +1130,7 @@ void WiTools::extractImage(const QModelIndexList indexList, const QString destin
 
 void WiTools::extractImage_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -1339,7 +1339,7 @@ void WiTools::transferDVDToWBFS(const QString dvdPath, const QString wbfsPath, c
 
 void WiTools::transferDVDToWBFS_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -1528,7 +1528,7 @@ void WiTools::transferDVDToImage(const QString dvdPath, const WiTools::TransferF
 
 void WiTools::transferDVDToImage_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -1707,7 +1707,7 @@ void WiTools::extractDVD(const QString dvdPath, const QString destination, const
 
 void WiTools::extractDVD_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -1944,7 +1944,7 @@ void WiTools::transferWBFSToImage(const QString wbfsPath, const WiTools::Transfe
 
 void WiTools::transferWBFSToImage_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -2141,7 +2141,7 @@ void WiTools::extractWBFS(const QModelIndexList indexList, const QString wbfsPat
 
 void WiTools::extractWBFS_readyReadStandardOutput() {
     QTextStream textStream(witProcess);
-    textStream.setCodec("UTF-8");
+    textStream.setEncoding(QStringConverter::Utf8);
 
     while (!textStream.atEnd()) {
         const QString line = textStream.readLine();
@@ -2597,8 +2597,28 @@ void WiTools::patchGameImage(const QString filePath, const WiTools::GamePatchPar
     delete witProcess;
 }
 
+QStringList WiTools::bundledWitPaths() {
+    QString appDir = QCoreApplication::applicationDirPath();
+
+    #ifdef Q_OS_MACOS
+        // Inside "Wii Backup Fusion.app/Contents/MacOS", wit is shipped in "Contents/Resources/wit"
+        return QStringList() << QDir::cleanPath(appDir + "/../Resources/wit");
+    #else
+        return QStringList() << appDir + "/wit";
+    #endif
+}
+
+QString WiTools::writableTitlesPath() {
+    #ifdef Q_OS_MACOS
+        // The app bundle must stay untouched (code signature), so downloaded titles go to ~/Library/Application Support
+        return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).append("/wit");
+    #else
+        return bundledWitPaths().first();
+    #endif
+}
+
 void WiTools::setWit() {
-    QDir::setSearchPaths("wit", QStringList() << QDir::currentPath().append("/wit") << "/usr/local/bin" << "/usr/local/share/wit" << WIIBAFU_SETTINGS.value("WIT/PathToWIT", QVariant(DEFAULT_WIT_PATH)).toString() << QDir::currentPath().remove("MacOS").append("wit") << QDir::currentPath().append("/Wii Backup Fusion.app/Contents/wit") << QString(getenv("PATH")).split(":"));
+    QDir::setSearchPaths("wit", bundledWitPaths() << "/usr/local/bin" << "/opt/homebrew/bin" << "/usr/local/share/wit" << WIIBAFU_SETTINGS.value("WIT/PathToWIT", QVariant(DEFAULT_WIT_PATH)).toString() << QString(getenv("PATH")).split(":"));
 
     #ifdef Q_OS_WIN32
         wit = QFile("wit:wit.exe").fileName();
@@ -2700,7 +2720,7 @@ QString WiTools::witTitlesPath() {
         default: titles = "titles";
     }
 
-    QDir::setSearchPaths("witTitles", QStringList() << QDir::currentPath().append("/wit") << "/usr/share/wit" << "/usr/local/share/wit" << WIIBAFU_SETTINGS.value("WIT/PathToTitles", QVariant(DEFAULT_TITLES_PATH)).toString() << QDir::currentPath().remove("MacOS").append("wit") << QDir::currentPath().append("/Wii Backup Fusion.app/Contents/wit") << QString(getenv("PATH")).split(":") << QString(getenv("WIT-TITLES")).split(":"));
+    QDir::setSearchPaths("witTitles", bundledWitPaths() << writableTitlesPath() << "/usr/share/wit" << "/usr/local/share/wit" << "/opt/homebrew/share/wit" << WIIBAFU_SETTINGS.value("WIT/PathToTitles", QVariant(DEFAULT_TITLES_PATH)).toString() << QString(getenv("PATH")).split(":") << QString(qgetenv("WIT-TITLES")).split(":"));
 
     return QFile(QString("witTitles:%1.txt").arg(titles)).fileName();
 }
